@@ -10,17 +10,19 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-navigation/native": "^6.1.17",
     "@react-navigation/bottom-tabs": "^6.5.20",
+    "@react-navigation/native": "^6.1.17",
+    "axios": "^1.6.2",
     "expo": "~54.0.23",
-    "expo-status-bar": "~3.0.8",
-    "expo-location": "^17.0.1",
     "expo-haptics": "^13.0.1",
+    "expo-location": "^17.0.1",
+    "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-screens": "^3.29.0",
     "react-native-safe-area-context": "^4.8.2",
-    "axios": "^1.6.2"
+    "react-native-screens": "^3.29.0",
+    "react-native-web": "^0.21.0"
   },
   "private": true
 }

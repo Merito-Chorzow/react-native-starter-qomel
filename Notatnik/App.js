@@ -3,9 +3,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 
-import Home from "./screens/Home";
-import AddEdit from "./screens/AddEdit";
-import Settings from "./screens/Settings";
+import HomeScreen from "./screens/Home";
+import AddEditScreen from "./screens/AddEdit";
+import SettingsScreen from "./screens/Settings";
 
 const Tab = createBottomTabNavigator();
 
@@ -14,14 +14,35 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: "#e91e63",
-          tabBarActiveTintColor: "gray",
+          tabBarActiveTintColor: "#007AFF",
+          tabBarInactiveTintColor: "#999",
           headerShown: true,
         }}
       >
-        <Tab.Screen name="Home" component={Home} />
-        <Tab.Screen name="AddEdit" component={AddEdit} />
-        <Tab.Screen name="Settings" component={Settings} />
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            title: "Moje notatki",
+            tabBarLabel: "Lista",
+          }}
+        />
+        <Tab.Screen
+          name="AddEdit"
+          component={AddEditScreen}
+          options={{
+            title: "Dodaj notatkę",
+            tabBarLabel: "Dodaj",
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            title: "Ustawienia",
+            tabBarLabel: "Info",
+          }}
+        />
       </Tab.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

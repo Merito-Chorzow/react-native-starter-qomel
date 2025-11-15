@@ -1,19 +1,15 @@
-import { StatusBar } from "expo-status-bar";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
-  Text,
   View,
-  TextInput,
-  Button,
+  Text,
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function Home({ navigation }) {
-  const [note, setNote] = useState({ title: "", description: "" });
+export default function HomeScreen({ navigation }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,20 +20,6 @@ export default function Home({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  const saveNote = async () => {
-    const newNotes = [...notes, note];
-    await AsyncStorage.setItem("notes", JSON.stringify(newNotes));
-    setNotes(newNotes);
-    setNote({ title: "", description: "" });
-  };
-
-  const deleteNote = async (index) => {
-    const newNotes = [...notes];
-    newNotes.splice(index, 1);
-    await AsyncStorage.setItem("notes", JSON.stringify(newNotes));
-    setNotes(newNotes);
-  };
-
   const loadNotes = async () => {
     setLoading(true);
     try {
@@ -46,20 +28,22 @@ export default function Home({ navigation }) {
         setNotes(JSON.parse(storedNotes));
       }
     } catch (error) {
-      console.error("Błąd podczas ładowania notatek:", error);
+      console.error("Błąd ładowania notatek:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderDeleteButton = (index) => {
-    return (
-      <TouchableOpacity>
-        <Text style={styles.deleteButton} onPress={deleteNote}>
-          Usuń
-        </Text>
-      </TouchableOpacity>
-    );
+  const deleteNote = async (index) => {
+    const newNotes = notes.filter((_, i) => i !== index);
+    await AsyncStorage.setItem("notes", JSON.stringify(newNotes));
+    setNotes(newNotes);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Brak daty";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pl-PL");
   };
 
   const renderItem = ({ item, index }) => (
@@ -72,14 +56,14 @@ export default function Home({ navigation }) {
         })
       }
       accessible={true}
-      accessibilityLabel={`Notatka: ${item.title}, ${formatDate(
+      accessibilityLabel={"Notatka: ${item.title}, ${formatDate"(
         item.createdAt
-      )}`}
+      )}
       accessibilityRole="button"
     >
       <View style={styles.noteContent}>
         <Text style={styles.noteTitle} numberOfLines={1}>
-          {item.title} || "Bez tytułu"
+          {item.title || "Bez tytułu"}
         </Text>
         <Text style={styles.noteDate}>{formatDate(item.createdAt)}</Text>
         {item.location && (
@@ -93,13 +77,13 @@ export default function Home({ navigation }) {
         </Text>
       </View>
       <TouchableOpacity
-        style={styles.deleteButton}
+        style={styles.deleteBtn}
         onPress={() => deleteNote(index)}
         accessible={true}
         accessibilityLabel={"Usuń notatkę: ${item.title}"}
         accessibilityRole="button"
       >
-        <Text style={styles.deleteButtonText}>🗑️</Text>
+        <Text style={styles.deleteBtnText}>🗑️</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -107,11 +91,11 @@ export default function Home({ navigation }) {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : notes.lenght === 0 ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : notes.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Brak notatek</Text>
-          <Text style={styles.emptySubtext}>Dodaj pierwszą notatkę</Text>
+          <Text style={styles.emptySubtext}>Dodaj swoją pierwszą notatkę!</Text>
         </View>
       ) : (
         <FlatList
