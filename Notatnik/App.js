@@ -7,13 +7,12 @@ import {
   Button,
   FlatList,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
-  const [note, setNote] = useState([{ title: "", description: "" }]);
+  const [note, setNote] = useState({ title: "", description: "" });
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
@@ -51,15 +50,15 @@ export default function App() {
     );
   };
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item, index }) => (
     <View style={styles.noteContainer}>
       <View>
         <Text style={styles.noteTitle}>{item.title}</Text>
-        <Text>{item.noteDescription}</Text>
+        <Text>{item.description}</Text>
       </View>
       {renderDeleteButton(index)}
-    </View>;
-  };
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -70,13 +69,22 @@ export default function App() {
           value={note.title}
           onChangeText={(text) => setNote({ ...note, title: text })}
         />
-        <Button title="Zapisz notatkę" />
+        <TextInput
+          style={[styles.input, styles.descriptionInput]}
+          placeholder="Opis"
+          multiline={true}
+          numberOfLines={5}
+          value={note.description}
+          onChangeText={(text) => setNote({ ...note, description: text })}
+        />
+
+        <Button title="Zapisz notatkę" onPress={saveNote} />
       </View>
       <FlatList
         data={notes}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.notesList}
+        contentContainerStyle={styles.noteList}
         ListEmptyComponent={() => (
           <Text style={styles.emptyListText}>Brak notatek</Text>
         )}
@@ -90,6 +98,72 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
+    paddingTop: 50,
+    paddingHorizontal: 10,
+  },
+  form: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    alignItems: "center",
     justifyContent: "center",
+    marginTop: "20%",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "white",
+    width: "100%",
+  },
+  descriptionInput: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  noteList: {
+    paddingBottom: 20,
+  },
+  noteContainer: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  noteTitle: {
+    fontWeight: "bold",
+    marginBottom: 5,
+    fontSize: 16,
+  },
+  deleteButton: {
+    color: "red",
+    fontWeight: "bold",
+    fontSize: 18,
+    marginLeft: 10,
+  },
+  emptyListText: {
+    textAlign: "center",
+    marginTop: 20,
   },
 });
