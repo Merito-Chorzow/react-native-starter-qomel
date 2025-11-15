@@ -41,10 +41,46 @@ export default function App() {
     }
   };
 
+  const renderDeleteButton = (index) => {
+    return (
+      <TouchableOpacity>
+        <Text style={styles.deleteButton} onPress={deleteNote}>
+          Usuń
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderItem = ({ item, index }) => {
+    <View style={styles.noteContainer}>
+      <View>
+        <Text style={styles.noteTitle}>{item.title}</Text>
+        <Text>{item.noteDescription}</Text>
+      </View>
+      {renderDeleteButton(index)}
+    </View>;
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Temat"
+          value={note.title}
+          onChangeText={(text) => setNote({ ...note, title: text })}
+        />
+        <Button title="Zapisz notatkę" />
+      </View>
+      <FlatList
+        data={notes}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.notesList}
+        ListEmptyComponent={() => (
+          <Text style={styles.emptyListText}>Brak notatek</Text>
+        )}
+      />
     </View>
   );
 }
