@@ -20,6 +20,13 @@ export default function App() {
     loadNotes();
   }, []);
 
+  const saveNote = async () => {
+    const newNotes = [...notes, note];
+    await AsyncStorage.setItem("notes", JSON.stringify(newNotes));
+    setNotes(newNotes);
+    setNote({ title: "", description: "" });
+  };
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
