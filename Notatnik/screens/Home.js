@@ -7,21 +7,22 @@ import {
   Button,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Home from "./screens/Home";
-import AddEdit from "./screens/AddEdit";
-import Settings from "./screens/Settings";
-
-export default function App() {
+export default function Home({ navigation }) {
   const [note, setNote] = useState({ title: "", description: "" });
   const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadNotes();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      loadNotes();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const saveNote = async () => {
     const newNotes = [...notes, note];
@@ -38,9 +39,16 @@ export default function App() {
   };
 
   const loadNotes = async () => {
-    const storedNotes = await AsyncStorage.getItem("notes");
-    if (storedNotes) {
-      setNotes(JSON.parse(storedNotes));
+    setLoading(true);
+    try {
+      const storedNotes = await AsyncStorage.getItem("notes");
+      if (storedNotes) {
+        setNotes(JSON.parse(storedNotes));
+      }
+    } catch (error) {
+      console.error("Błąd podczas ładowania notatek:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,44 +63,64 @@ export default function App() {
   };
 
   const renderItem = ({ item, index }) => (
-    <View style={styles.noteContainer}>
-      <View>
-        <Text style={styles.noteTitle}>{item.title}</Text>
-        <Text>{item.description}</Text>
+    <TouchableOpacity
+      style={styles.noteContainer}
+      onPress={() =>
+        navigation.navigate("Detail", {
+          note: item,
+          index: index,
+        })
+      }
+      accessible={true}
+      accessibilityLabel={`Notatka: ${item.title}, ${formatDate(
+        item.createdAt
+      )}`}
+      accessibilityRole="button"
+    >
+      <View style={styles.noteContent}>
+        <Text style={styles.noteTitle} numberOfLines={1}>
+          {item.title} || "Bez tytułu"
+        </Text>
+        <Text style={styles.noteDate}>{formatDate(item.createdAt)}</Text>
+        {item.location && (
+          <Text style={styles.noteLocation}>
+            {item.location.latitude.toFixed(4)},{" "}
+            {item.location.longitude.toFixed(4)}
+          </Text>
+        )}
+        <Text style={styles.notePreview} numberOfLines={2}>
+          {item.description}
+        </Text>
       </View>
-      {renderDeleteButton(index)}
-    </View>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => deleteNote(index)}
+        accessible={true}
+        accessibilityLabel={"Usuń notatkę: ${item.title}"}
+        accessibilityRole="button"
+      >
+        <Text style={styles.deleteButtonText}>🗑️</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Temat"
-          value={note.title}
-          onChangeText={(text) => setNote({ ...note, title: text })}
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : notes.lenght === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Brak notatek</Text>
+          <Text style={styles.emptySubtext}>Dodaj pierwszą notatkę</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={notes}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.listContent}
         />
-        <TextInput
-          style={[styles.input, styles.descriptionInput]}
-          placeholder="Opis"
-          multiline={true}
-          numberOfLines={5}
-          value={note.description}
-          onChangeText={(text) => setNote({ ...note, description: text })}
-        />
-
-        <Button title="Zapisz notatkę" onPress={saveNote} />
-      </View>
-      <FlatList
-        data={notes}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.noteList}
-        ListEmptyComponent={() => (
-          <Text style={styles.emptyListText}>Brak notatek</Text>
-        )}
-      />
+      )}
     </View>
   );
 }
@@ -100,74 +128,74 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    paddingTop: 50,
+    backgroundColor: "#f5f5f5",
+  },
+  listContent: {
     paddingHorizontal: 10,
-  },
-  form: {
-    width: "90%",
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: "20%",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: "white",
-    width: "100%",
-  },
-  descriptionInput: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  noteList: {
-    paddingBottom: 20,
+    paddingVertical: 10,
   },
   noteContainer: {
     backgroundColor: "white",
-    padding: 10,
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 3,
+    minHeight: 48,
+  },
+  noteContent: {
+    flex: 1,
+    marginRight: 10,
   },
   noteTitle: {
     fontWeight: "bold",
-    marginBottom: 5,
     fontSize: 16,
+    marginBottom: 5,
+    color: "#333",
   },
-  deleteButton: {
-    color: "red",
-    fontWeight: "bold",
+  noteDate: {
+    fontSize: 13,
+    color: "#666",
+    marginBottom: 5,
+  },
+  noteLocation: {
+    fontSize: 12,
+    color: "#0066cc",
+    marginBottom: 5,
+  },
+  notePreview: {
+    fontSize: 14,
+    color: "#555",
+  },
+  deleteBtn: {
+    padding: 8,
+    minHeight: 48,
+    minWidth: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteBtnText: {
     fontSize: 18,
-    marginLeft: 10,
   },
-  emptyListText: {
-    textAlign: "center",
-    marginTop: 20,
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#999",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#bbb",
+    marginTop: 10,
   },
 });
