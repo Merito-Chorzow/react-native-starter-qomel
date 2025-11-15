@@ -98,13 +98,37 @@ const saveNote = async () => {
 };
 
 return (
-  <TextInput
-    style={styles.input}
-    placeholder="Wpisz tytuł notatki"
-    value={title}
-    onChangeText={setTitle}
-    accessible={true}
-    accessibilityLabel="Pole tytułu"
-    accessibilityHint="Wpisz tutaj tytuł notatki"
-  />
+    <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.form}>
+            <Text style={styles.label}>Tytuł:</Text>
+            <TextInput
+                style={styles.input}
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Wpisz tytuł notatki"
+                accessible={true}
+                accessibilityLabel="Pole tytułu notatki"
+            />
+            <Text style={styles.label}>Opis:</Text>
+            <TextInput 
+                style={[styles.input, styles.descriptionInput]}
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Wpisz opis notatki"
+                multiline={true}
+                numberOfLines={4}
+                accessible={true}
+                accessibilityLabel="Pole opisu notatki"
+            />
+            <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                    style={styles.button, styles.locationButton}
+                    onPress={requestLocationPermission}
+                    disabled={loading}
+                    accessible={true}
+                    accessibilityLabel="Dodaj lokalizację do notatki"
+                    accessibilityRole="button"
+                >   
+                
+        </View>
 );
