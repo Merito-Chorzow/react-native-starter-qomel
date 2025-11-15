@@ -1,15 +1,44 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
-import React,{useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 
-export default function HomeScreen({navigation}) {
-    const[notes, setNotes] = useState([]);
+type HomeScreenProps = {
+  navigation: any;
+};
 
-    useEffect(() => {
-        loadNotes();
-    }, []);
+type Note = {
+  text: string;
+};
 
-    const loadNotes = async () => {
-        const savedNotes = await AsyncStorage.getItem("notes");
-        if (savedNotes) setNotes(JSON.parse(savedNotes));
+export default function HomeScreen({ navigation }: HomeScreenProps) {
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  useEffect(() => {
+    loadNotes();
+  }, []);
+
+  const loadNotes = async () => {
+    const savedNotes = await AsyncStorage.getItem("notes");
+    if (savedNotes) setNotes(JSON.parse(savedNotes));
+  };
+
+  return (
+    <View>
+      <FlatList
+        data={notes}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Notatka", { note: item })}
+          >
+            <Text>{item.text}</Text>
+          </TouchableOpacity>
+        )}
+      />
+      <Button
+        title="Dodaj notatkę"
+        onPress={() => navigation.navigate("Notatka")}
+      />
+    </View>
+  );
 }
