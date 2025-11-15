@@ -34,6 +34,13 @@ export default function App() {
     setNotes(newNotes);
   };
 
+  const loadNotes = async () => {
+    const storedNotes = await AsyncStorage.getItem("notes");
+    if (storedNotes) {
+      setNotes(JSON.parse(storedNotes));
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
