@@ -27,6 +27,13 @@ export default function App() {
     setNote({ title: "", description: "" });
   };
 
+  const deleteNote = async (index) => {
+    const newNotes = [...notes];
+    newNotes.splice(index, 1);
+    await AsyncStorage.setItem("notes", JSON.stringify(newNotes));
+    setNotes(newNotes);
+  };
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
